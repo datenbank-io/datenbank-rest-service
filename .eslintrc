@@ -1,0 +1,21 @@
+{
+  "extends": [
+    "standard"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 8,
+    "sourceType": "module"
+  },
+  "env": {
+    "node": true,
+    "mocha": true,
+    "es6": true
+  },
+  "rules": {
+    "no-var": "warn",
+    "prefer-const": "warn",
+    "space-before-function-paren": ["warn", "never"],
+    "standard/no-callback-literal": 0,
+    "prefer-template": "error"
+  }
+}
