@@ -10,9 +10,13 @@ module.exports = (socket) => {
   })
 
   socket.on('db-connect', async(data) => {
-    dbConnection[socket.id] = new Sequelize(data.database, data.username, data.password, {
-      host: data.host,
+    dbConnection[socket.id] = new Sequelize({
       dialect: data.dialect,
+      host: data.host,
+      port: data.port,
+      database: data.database,
+      username: data.username,
+      password: data.password,
       pool: {
         max: 2,
         min: 0,
