@@ -23,17 +23,28 @@ module.exports = (socket) => {
         acquire: 30000,
         idle: 10000
       },
-      operatorsAliases: false
+      operatorsAliases: false,
+      dialectOptions: {
+        multipleStatements: true
+      }
     })
     await dbConnection[socket.id].authenticate()
     socket.emit('db-connected')
   })
 
   socket.on('db-query', async(data) => {
-    const result = await dbConnection[socket.id].query(data.query, {
-      type: dbConnection[socket.id].QueryTypes.SELECT
-    })
+    dbConnection[socket.id].query(data.query).spread((result, created) => {
+      if (!result && created) result = created
 
-    socket.emit('db-response', result)
+      socket.emit('db-response', {
+        success: true,
+        result: result
+      })
+    }).catch((err) => {
+      socket.emit('db-response', {
+        success: false,
+        result: err.message
+      })
+    })
   })
 }
