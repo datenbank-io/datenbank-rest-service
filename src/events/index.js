@@ -1,50 +1,25 @@
-const Sequelize = require('sequelize')
-const dbConnection = {}
+const DbConnectionHandler = require('../handlers/db-connection.handler')
 
 module.exports = (socket) => {
-  console.log('socket connection...')
+  console.log('onSocketConnection')
 
   socket.on('disconnect', () => {
-    console.log('disconnect...')
-    if (dbConnection[socket.id]) dbConnection[socket.id].close()
+    if (socket.dbc) socket.dbConnection.close()
+    console.log('onSocketDisconnection')
   })
 
   socket.on('db-connect', async(data) => {
-    dbConnection[socket.id] = new Sequelize({
-      dialect: data.dialect,
-      host: data.host,
-      port: data.port,
-      database: data.database,
-      username: data.username,
-      password: data.password,
-      pool: {
-        max: 2,
-        min: 0,
-        acquire: 30000,
-        idle: 10000
-      },
-      operatorsAliases: false,
-      dialectOptions: {
-        multipleStatements: true
-      }
+    socket.dbConnection = new DbConnectionHandler(data)
+    await socket.dbConnection.authenticate()
+
+    socket.dbConnection.on('payload', (payload) => {
+      socket.emit('db-payload', payload)
     })
-    await dbConnection[socket.id].authenticate()
+
     socket.emit('db-connected')
   })
 
   socket.on('db-query', async(data) => {
-    dbConnection[socket.id].query(data.query).spread((result, created) => {
-      if (!result && created) result = created
-
-      socket.emit('db-response', {
-        success: true,
-        result: result
-      })
-    }).catch((err) => {
-      socket.emit('db-response', {
-        success: false,
-        result: err.message
-      })
-    })
+    socket.dbConnection.query({ query: data.query })
   })
 }
