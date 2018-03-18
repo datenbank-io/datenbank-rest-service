@@ -20,6 +20,6 @@ module.exports = (socket) => {
   })
 
   socket.on('db-query', async(data) => {
-    socket.dbConnection.query({ query: data.query })
+    socket.dbConnection.query({ ref: data.ref, query: data.query })
   })
 }

@@ -40,15 +40,42 @@ module.exports = class DbConnectionHandler extends EventEmitter {
         'FROM ' +
         'information_schema.schemata AS a'
 
-      this.query({ query: queryTables, type: 'explorer' })
+      this.query({ query: queryTables, type: 'explorer', ref: 'explorer' })
+
+      // SELECT SCHEMA_NAME AS `Database` FROM INFORMATION_SCHEMA.SCHEMATA
+
+      // SELECT TABLE_NAME
+      // FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA='mysql';
+
+      // SELECT COLUMN_NAME
+      //     FROM INFORMATION_SCHEMA.COLUMNS
+      //     WHERE TABLE_SCHEMA='mysql' AND table_name='test';
     }
+
+    // this.explorer({ request: 'schemas' })
+    // this.explorer({ request: 'tables', schema: 'mysql' })
+    // this.explorer({ request: 'tableDetail', schema: 'mysql', table: 'test' })
 
     return authResult
   }
 
-  query({ query, type = 'query-result' }) {
+  // explore({ request, schema, table }) {
+  //   if (this.dialect === 'mysql') {
+  //     if (request === 'schemas') {
+  //       const query = 'SELECT schema_name FROM information_schema.schemata ORDER BY schema_name'
+  //       this.query({ query, type: 'schemas' })
+  //     } else if (request === 'tables') {
+  //       query = `SELECT table_name FROM information_schema.tables WHERE table_schema='${schema}' ` +
+  //         'ORDER BY table_name'
+  //       this.query({ query, type: 'tables' })
+  //     } else if (request === 'tableDetail')
+  //   }
+  // }
+
+  query({ ref, query, type = 'query-result' }) {
     const payload = {
-      type: type,
+      ref,
+      type,
       content: undefined
     }
 
